@@ -5,7 +5,7 @@
   "packageManager": "pnpm@9.0.0",
   "scripts": {
     "build": "tsc",
-    "preflight": "tsx scripts/preflight.ts",
+    "preflight": "tsx src/scripts/preflight.ts",
     "db:setup": "docker-compose up -d && sleep 10 && docker exec orm-benchmark-db psql -U benchmark -d benchmark -c 'CREATE EXTENSION IF NOT EXISTS pg_stat_statements;'",
     "db:generate": "pnpm prisma generate --schema=src/orms/prisma/schema.prisma",
     "test": "tsx src/index.ts"
