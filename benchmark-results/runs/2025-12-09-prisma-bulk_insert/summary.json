@@ -1,0 +1,14 @@
+{
+  "testId": "bulk_insert-prisma-1765288909060",
+  "timestamp": "2025-12-09T14:01:49.060Z",
+  "orm": "prisma",
+  "scenario": "bulk_insert",
+  "summary": {
+    "p50": 29.215522999875247,
+    "p95": 38.165163200115785,
+    "p99": 41.05519536998356,
+    "rps": 34.89445489534259,
+    "avgMemoryMB": 81.22255705089172,
+    "errorCount": 0
+  }
+}

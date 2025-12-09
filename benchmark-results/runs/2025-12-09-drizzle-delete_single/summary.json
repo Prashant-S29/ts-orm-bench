@@ -1,0 +1,14 @@
+{
+  "testId": "delete_single-drizzle-1765287743224",
+  "timestamp": "2025-12-09T13:42:23.224Z",
+  "orm": "drizzle",
+  "scenario": "delete_single",
+  "summary": {
+    "p50": 3.4748019999969983,
+    "p95": 3.879682650012546,
+    "p99": 4.344496299997268,
+    "rps": 285.78998003206624,
+    "avgMemoryMB": 24.700273114835635,
+    "errorCount": 0
+  }
+}

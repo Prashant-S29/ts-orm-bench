@@ -1,0 +1,14 @@
+{
+  "testId": "insert_single-drizzle-1765287692620",
+  "timestamp": "2025-12-09T13:41:32.620Z",
+  "orm": "drizzle",
+  "scenario": "insert_single",
+  "summary": {
+    "p50": 1.7304840000069817,
+    "p95": 2.1233898999875236,
+    "p99": 2.5583586199920685,
+    "rps": 564.6416460834026,
+    "avgMemoryMB": 23.222668170928955,
+    "errorCount": 0
+  }
+}
