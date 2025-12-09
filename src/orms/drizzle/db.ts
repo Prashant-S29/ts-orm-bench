@@ -10,6 +10,7 @@ const pool = new Pool({
   max: parseInt(process.env.CONNECTION_POOL_SIZE || '20'),
 });
 
-export const db = drizzle({ client: pool, schema });
+const db = drizzle({ client: pool, schema });
 
-export { pool };
+// Export db, pool, and schema separately
+export { db, pool, schema };

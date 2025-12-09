@@ -1,0 +1,1 @@
+export { crudScenarios } from './crud';
