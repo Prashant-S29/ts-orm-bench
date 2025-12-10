@@ -6,16 +6,22 @@
   "scripts": {
     "build": "tsc",
     "preflight": "tsx src/scripts/preflight.ts",
+    "validate:config": "tsx src/scripts/validate-config.ts",
     "db:setup": "docker-compose up -d && sleep 10 && docker exec orm-benchmark-db psql -U benchmark -d benchmark -c 'CREATE EXTENSION IF NOT EXISTS pg_stat_statements;'",
     "db:schema": "tsx src/database/setup-schema.ts",
-    "db:generate": "prisma generate --schema=src/orms/prisma/schema.prisma",
-    "db:push": "prisma db push --schema=src/orms/prisma/schema.prisma",
+    "db:generate": "prisma generate --schema=src/orms/prisma/v7.1.0/schema.prisma",
+    "db:push": "prisma db push --schema=src/orms/prisma/v7.1.0/schema.prisma",
     "db:seed": "tsx src/scripts/seed-data.ts",
-    "test": "tsx src/index.ts"
+    "test": "tsx src/index.ts",
+    "test:scenario": "tsx src/index.ts scenario",
+    "test:orm": "tsx src/index.ts orm",
+    "aggregate": "tsx src/index.ts aggregate",
+    "results:generate": "tsx src/scripts/generate-results.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.1.0",
     "@prisma/client": "^7.1.0",
+    "cli-table3": "^0.6.5",
     "dotenv": "^16.3.1",
     "drizzle-orm": "^1.0.0-beta.2",
     "pg": "^8.11.3"

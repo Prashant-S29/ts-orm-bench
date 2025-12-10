@@ -1,3 +1,7 @@
+/**
+ * Drizzle Schema - Version 1.0.0-beta.2
+ */
+
 import { relations } from 'drizzle-orm/_relations';
 import {
   pgTable,

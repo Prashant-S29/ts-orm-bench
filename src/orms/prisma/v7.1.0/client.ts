@@ -1,7 +1,12 @@
+/**
+ * Prisma Client - Version 7.1.0
+ * This file is used for standalone initialization (not via adapter)
+ */
+
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
-import { databaseConfig } from '../../config/database';
+import { databaseConfig } from '../../../config/database';
 
 const connectionString = `postgresql://${databaseConfig.user}:${databaseConfig.password}@${databaseConfig.host}:${databaseConfig.port}/${databaseConfig.database}`;
 
