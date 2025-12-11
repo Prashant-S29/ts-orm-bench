@@ -1,93 +1,95 @@
 /**
  * Generate Results Script
- * Aggregates all results and generates UI-optimized data
+ * Aggregates all results and generates UI-optimized data using the new storage system
  */
 
-import { ResultsStorage } from '../benchmark/results-storage';
-import {
-  defaultConfig,
-  getEnabledORMs,
-  getEnabledScenarios,
-} from '../config/default-config';
+import { StorageManager } from '../benchmark/storage-manager';
 import { logger } from '../utils/logger';
-import * as fs from 'fs/promises';
-import * as path from 'path';
 
 async function main() {
   logger.info('='.repeat(60));
-  logger.info('Results Generation & Aggregation');
+  logger.info('Results Generation & Aggregation (Enhanced)');
   logger.info('='.repeat(60));
 
-  const storage = new ResultsStorage();
-  await storage.initialize();
+  const storageManager = new StorageManager();
+  await storageManager.initialize();
 
-  const enabledORMs = getEnabledORMs(defaultConfig);
-  const enabledScenarios = getEnabledScenarios(defaultConfig);
+  // Parse command line arguments
+  const args = process.argv.slice(2);
+  const command = args[0];
+  const runId = args[1];
 
-  // Check if we have any results
-  const runsDir = path.join('benchmark-results', 'runs');
   try {
-    const runs = await fs.readdir(runsDir);
-    if (runs.length === 0) {
-      logger.warn('\nNo benchmark results found!');
-      logger.info('Run benchmarks first:');
-      logger.info('  pnpm test');
-      process.exit(0);
+    if (command === 'latest' || !command) {
+      // Generate aggregations for latest run
+      logger.info('\nGenerating aggregations for latest run...');
+      await storageManager.generateLatestAggregations();
+    } else if (command === 'run' && runId) {
+      // Generate aggregations for specific run
+      logger.info(`\nGenerating aggregations for run: ${runId}...`);
+      await storageManager.generateAllAggregations(runId);
+    } else if (command === 'all') {
+      // Regenerate all historical aggregations
+      logger.info('\nRegenerating all historical aggregations...');
+      await storageManager.regenerateAllAggregations();
+    } else if (command === 'stats') {
+      // Show storage statistics
+      await storageManager.getStatistics();
+    } else if (command === 'summary' && runId) {
+      // Show run summary
+      await storageManager.getRunSummary(runId);
+    } else {
+      logger.error('Unknown command or missing arguments');
+      printUsage();
+      process.exit(1);
     }
-    logger.info(`\nFound ${runs.length} benchmark run(s)`);
-  } catch (error) {
-    logger.error('\nBenchmark results directory not found!');
-    logger.info('Run benchmarks first:');
-    logger.info('  pnpm test');
-    process.exit(1);
-  }
 
-  // Aggregate by ORM
-  logger.info('\n📊 Aggregating results by ORM...');
-  let aggregatedCount = 0;
-  for (const orm of enabledORMs) {
-    try {
-      await storage.aggregateByORM(orm.id);
-      logger.success(`  ✓ ${orm.name}@${orm.version}`);
-      aggregatedCount++;
-    } catch (error) {
-      logger.warn(`  ⚠ ${orm.name}@${orm.version} - No results found`);
-    }
-  }
+    logger.info('');
+    logger.info('='.repeat(60));
+    logger.success('✓ Results generation complete!');
+    logger.info('='.repeat(60));
 
-  // Aggregate by scenario
-  logger.info('\n📊 Aggregating results by scenario...');
-  for (const scenario of enabledScenarios) {
-    try {
-      await storage.aggregateByScenario(scenario.id);
-      logger.success(`  ✓ ${scenario.name}`);
-    } catch (error) {
-      logger.warn(`  ⚠ ${scenario.name} - No results found`);
-    }
-  }
-
-  // Generate UI data
-  logger.info('\n🎨 Generating UI-optimized data...');
-  try {
-    await storage.generateUIData();
-    logger.success('  ✓ UI data generated');
-  } catch (error) {
-    logger.error('  ✗ Failed to generate UI data:', error);
-  }
-
-  logger.info('\n' + '='.repeat(60));
-  logger.success('✓ Results generation complete!');
-  logger.info('='.repeat(60));
-
-  if (aggregatedCount > 0) {
     logger.info('\nGenerated files:');
     logger.info('  📁 benchmark-results/aggregated/by-orm/');
     logger.info('  📁 benchmark-results/aggregated/by-scenario/');
-    logger.info('  📄 benchmark-results/ui-data/latest.json');
+    logger.info('  📁 benchmark-results/aggregated/by-category/');
+    logger.info('  📁 benchmark-results/aggregated/comparisons/');
+    logger.info('  📁 benchmark-results/ui-data/latest/');
+    logger.info('  📁 benchmark-results/ui-data/comparisons/');
+    logger.info('  📁 benchmark-results/ui-data/historical/');
+  } catch (error) {
+    logger.error('\nFailed to generate results:', error);
+    process.exit(1);
   }
 }
 
+function printUsage() {
+  logger.info('\nUsage:');
+  logger.info(
+    '  pnpm generate-results                    - Generate for latest run',
+  );
+  logger.info(
+    '  pnpm generate-results latest             - Generate for latest run',
+  );
+  logger.info(
+    '  pnpm generate-results run <runId>        - Generate for specific run',
+  );
+  logger.info(
+    '  pnpm generate-results all                - Regenerate all historical',
+  );
+  logger.info(
+    '  pnpm generate-results stats              - Show storage statistics',
+  );
+  logger.info('  pnpm generate-results summary <runId>    - Show run summary');
+  logger.info('');
+  logger.info('Examples:');
+  logger.info('  pnpm generate-results');
+  logger.info('  pnpm generate-results run 2025-12-10_14-30-45');
+  logger.info('  pnpm generate-results all');
+  logger.info('  pnpm generate-results stats');
+}
+
 main().catch((error) => {
-  logger.error('Failed to generate results:', error);
+  logger.error('Script failed:', error);
   process.exit(1);
 });

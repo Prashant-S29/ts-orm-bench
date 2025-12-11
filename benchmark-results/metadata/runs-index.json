@@ -1,0 +1,19 @@
+{
+  "runs": [
+    {
+      "runId": "2025-12-11_19-36-03",
+      "timestamp": "2025-12-11T14:06:03.366Z",
+      "status": "completed",
+      "orms": [
+        "drizzle-v1.0.0-beta.2",
+        "prisma-v7.1.0"
+      ],
+      "scenarios": 14,
+      "duration": 857133
+    }
+  ],
+  "totalRuns": 1,
+  "oldestRun": "2025-12-11_19-36-03",
+  "newestRun": "2025-12-11_19-36-03",
+  "lastUpdated": "2025-12-11T14:20:20.501Z"
+}

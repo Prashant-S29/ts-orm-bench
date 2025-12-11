@@ -12,6 +12,7 @@ import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 export interface DrizzleClientWrapper {
   db: NodePgDatabase<any>;
   schema: any;
+  relations: any;
   pool: Pool;
 }
 
@@ -24,6 +25,7 @@ export class DrizzleAdapter extends BaseORMAdapter {
   private pool?: Pool;
   private db?: NodePgDatabase<any>;
   private schema?: any;
+  private relations?: any;
 
   constructor(config: ORMConfig) {
     super();
@@ -38,31 +40,47 @@ export class DrizzleAdapter extends BaseORMAdapter {
       const schemaModule = await import(`../../${this.config.schemaPath}`);
       this.schema = schemaModule;
 
-      // Get database configuration from environment
-      const connectionString = `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`;
+      // Dynamic import of relations based on version
+      // Relations file should be in the same directory as schema
+      const schemaDir = this.config.schemaPath.substring(
+        0,
+        this.config.schemaPath.lastIndexOf('/'),
+      );
+      const relationsModule = await import(`../../${schemaDir}/relations`);
+      this.relations = relationsModule.relations;
 
       // Create connection pool
       this.pool = new Pool({
-        connectionString,
+        host: process.env.DB_HOST || 'localhost',
+        port: parseInt(process.env.DB_PORT || '5432'),
+        user: process.env.DB_USER || 'benchmark',
+        password: process.env.DB_PASSWORD || 'benchmark',
+        database: process.env.DB_NAME || 'benchmark',
         max: this.config.settings?.connectionPoolSize || 20,
       });
 
-      // Initialize Drizzle with schema
+      // Initialize Drizzle with schema and relations for RQBv2
       this.db = drizzle({
         client: this.pool,
         schema: this.schema,
+        relations: this.relations,
       });
 
       // Wrap client for compatibility with existing test scenarios
       this.client = {
         db: this.db,
         schema: this.schema,
+        relations: this.relations,
         pool: this.pool,
       };
 
       this.connected = false; // Not connected until connect() is called
     } catch (error) {
-      throw new Error(`Failed to initialize Drizzle adapter: ${error}`);
+      throw new Error(
+        `Failed to initialize Drizzle adapter: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
     }
   }
 
@@ -70,12 +88,21 @@ export class DrizzleAdapter extends BaseORMAdapter {
     this.ensureInitialized();
 
     try {
-      // Test connection with a simple query
-      await this.db!.select().from(this.schema.users).limit(1);
+      // Test connection with a simple query using raw SQL
+      const result = await this.db!.execute('SELECT 1 as test');
+
+      if (!result) {
+        throw new Error('Connection test query returned no result');
+      }
+
       this.connected = true;
     } catch (error) {
       this.connected = false;
-      throw new Error(`Failed to connect Drizzle: ${error}`);
+      throw new Error(
+        `Failed to connect Drizzle: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
     }
   }
 
@@ -85,6 +112,7 @@ export class DrizzleAdapter extends BaseORMAdapter {
       this.connected = false;
       this.db = undefined;
       this.schema = undefined;
+      this.relations = undefined;
       this.pool = undefined;
       this.client = undefined;
     }
@@ -96,7 +124,7 @@ export class DrizzleAdapter extends BaseORMAdapter {
     }
 
     try {
-      await this.db.select().from(this.schema.users).limit(1);
+      await this.db.execute('SELECT 1 as health_check');
       return true;
     } catch (error) {
       return false;
@@ -114,6 +142,7 @@ export class DrizzleAdapter extends BaseORMAdapter {
         'SQL-like API',
         'Zero runtime overhead',
         'Edge runtime support',
+        'Relational Queries v2',
       ],
       limitations: ['Manual schema management', 'No migration generation'],
     };

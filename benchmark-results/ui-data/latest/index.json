@@ -1,0 +1,86 @@
+{
+  "version": "1.0.0",
+  "generated": "2025-12-11T14:20:20.699Z",
+  "latestRun": {
+    "runId": "2025-12-11_19-36-03",
+    "timestamp": "2025-12-11T14:06:03.366Z"
+  },
+  "availableRuns": [
+    {
+      "runId": "2025-12-11_19-36-03",
+      "timestamp": "2025-12-11T14:06:03.366Z",
+      "label": "Just now",
+      "orms": [
+        "drizzle-v1.0.0-beta.2",
+        "prisma-v7.1.0"
+      ],
+      "categories": [
+        "crud"
+      ],
+      "scenarioCount": 14,
+      "status": "completed"
+    }
+  ],
+  "orms": [
+    {
+      "id": "drizzle-v1.0.0-beta.2",
+      "name": "drizzle",
+      "version": "1.0.0-beta.2",
+      "firstSeen": "2025-12-11T14:20:20.462Z",
+      "lastTested": "2025-12-11T14:20:20.462Z",
+      "totalRuns": 1
+    },
+    {
+      "id": "prisma-v7.1.0",
+      "name": "prisma",
+      "version": "7.1.0",
+      "firstSeen": "2025-12-11T14:20:20.496Z",
+      "lastTested": "2025-12-11T14:20:20.496Z",
+      "totalRuns": 1
+    }
+  ],
+  "categories": [
+    {
+      "id": "crud",
+      "name": "CRUD Operations",
+      "scenarioCount": 7
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "bulk_insert",
+      "name": "Bulk INSERT (100 records)",
+      "category": "crud"
+    },
+    {
+      "id": "delete_single",
+      "name": "DELETE Single Record",
+      "category": "crud"
+    },
+    {
+      "id": "insert_single",
+      "name": "INSERT Single Record",
+      "category": "crud"
+    },
+    {
+      "id": "select_by_email",
+      "name": "SELECT by Email (Indexed)",
+      "category": "crud"
+    },
+    {
+      "id": "select_by_id",
+      "name": "SELECT by Primary Key",
+      "category": "crud"
+    },
+    {
+      "id": "select_pagination",
+      "name": "SELECT with Pagination",
+      "category": "crud"
+    },
+    {
+      "id": "update_single",
+      "name": "UPDATE Single Record",
+      "category": "crud"
+    }
+  ]
+}

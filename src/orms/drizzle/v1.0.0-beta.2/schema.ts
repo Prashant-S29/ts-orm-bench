@@ -1,8 +1,8 @@
 /**
  * Drizzle Schema - Version 1.0.0-beta.2
+ * Tables only - relations are defined separately
  */
 
-import { relations } from 'drizzle-orm/_relations';
 import {
   pgTable,
   bigserial,
@@ -34,12 +34,12 @@ export const users = pgTable(
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
     deletedAt: timestamp('deleted_at'),
   },
-  (table) => [
-    index('idx_users_email').on(table.email),
-    index('idx_users_username').on(table.username),
-    index('idx_users_created_at').on(table.createdAt),
-    index('idx_users_is_active').on(table.isActive),
-  ],
+  (table) => ({
+    emailIdx: index('idx_users_email').on(table.email),
+    usernameIdx: index('idx_users_username').on(table.username),
+    createdAtIdx: index('idx_users_created_at').on(table.createdAt),
+    isActiveIdx: index('idx_users_is_active').on(table.isActive),
+  }),
 );
 
 // CATEGORIES TABLE
@@ -59,11 +59,11 @@ export const categories = pgTable(
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
   },
-  (table) => [
-    index('idx_categories_parent_id').on(table.parentId),
-    index('idx_categories_slug').on(table.slug),
-    index('idx_categories_is_active').on(table.isActive),
-  ],
+  (table) => ({
+    parentIdIdx: index('idx_categories_parent_id').on(table.parentId),
+    slugIdx: index('idx_categories_slug').on(table.slug),
+    isActiveIdx: index('idx_categories_is_active').on(table.isActive),
+  }),
 );
 
 // PRODUCTS TABLE
@@ -87,13 +87,13 @@ export const products = pgTable(
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
   },
-  (table) => [
-    index('idx_products_sku').on(table.sku),
-    index('idx_products_category_id').on(table.categoryId),
-    index('idx_products_price').on(table.price),
-    index('idx_products_is_active').on(table.isActive),
-    index('idx_products_inventory').on(table.inventoryCount),
-  ],
+  (table) => ({
+    skuIdx: index('idx_products_sku').on(table.sku),
+    categoryIdIdx: index('idx_products_category_id').on(table.categoryId),
+    priceIdx: index('idx_products_price').on(table.price),
+    isActiveIdx: index('idx_products_is_active').on(table.isActive),
+    inventoryIdx: index('idx_products_inventory').on(table.inventoryCount),
+  }),
 );
 
 // TAGS TABLE
@@ -106,10 +106,10 @@ export const tags = pgTable(
     usageCount: integer('usage_count').default(0).notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
   },
-  (table) => [
-    index('idx_tags_slug').on(table.slug),
-    index('idx_tags_usage_count').on(table.usageCount),
-  ],
+  (table) => ({
+    slugIdx: index('idx_tags_slug').on(table.slug),
+    usageCountIdx: index('idx_tags_usage_count').on(table.usageCount),
+  }),
 );
 
 // PRODUCT_TAGS TABLE (Junction)
@@ -124,10 +124,10 @@ export const productTags = pgTable(
       .references(() => tags.id, { onDelete: 'cascade' }),
     createdAt: timestamp('created_at').defaultNow().notNull(),
   },
-  (table) => [
-    primaryKey({ columns: [table.productId, table.tagId] }),
-    index('idx_product_tags_tag_id').on(table.tagId),
-  ],
+  (table) => ({
+    pk: primaryKey({ columns: [table.productId, table.tagId] }),
+    tagIdIdx: index('idx_product_tags_tag_id').on(table.tagId),
+  }),
 );
 
 // ORDERS TABLE
@@ -150,12 +150,12 @@ export const orders = pgTable(
     shippedAt: timestamp('shipped_at'),
     deliveredAt: timestamp('delivered_at'),
   },
-  (table) => [
-    index('idx_orders_user_id').on(table.userId),
-    index('idx_orders_order_number').on(table.orderNumber),
-    index('idx_orders_status').on(table.status),
-    index('idx_orders_created_at').on(table.createdAt),
-  ],
+  (table) => ({
+    userIdIdx: index('idx_orders_user_id').on(table.userId),
+    orderNumberIdx: index('idx_orders_order_number').on(table.orderNumber),
+    statusIdx: index('idx_orders_status').on(table.status),
+    createdAtIdx: index('idx_orders_created_at').on(table.createdAt),
+  }),
 );
 
 // ORDER_ITEMS TABLE
@@ -176,10 +176,10 @@ export const orderItems = pgTable(
     subtotal: decimal('subtotal', { precision: 10, scale: 2 }).notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
   },
-  (table) => [
-    index('idx_order_items_order_id').on(table.orderId),
-    index('idx_order_items_product_id').on(table.productId),
-  ],
+  (table) => ({
+    orderIdIdx: index('idx_order_items_order_id').on(table.orderId),
+    productIdIdx: index('idx_order_items_product_id').on(table.productId),
+  }),
 );
 
 // REVIEWS TABLE
@@ -204,13 +204,13 @@ export const reviews = pgTable(
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
   },
-  (table) => [
-    index('idx_reviews_product_id').on(table.productId),
-    index('idx_reviews_user_id').on(table.userId),
-    index('idx_reviews_rating').on(table.rating),
-    index('idx_reviews_created_at').on(table.createdAt),
-    index('idx_reviews_helpful_count').on(table.helpfulCount),
-  ],
+  (table) => ({
+    productIdIdx: index('idx_reviews_product_id').on(table.productId),
+    userIdIdx: index('idx_reviews_user_id').on(table.userId),
+    ratingIdx: index('idx_reviews_rating').on(table.rating),
+    createdAtIdx: index('idx_reviews_created_at').on(table.createdAt),
+    helpfulCountIdx: index('idx_reviews_helpful_count').on(table.helpfulCount),
+  }),
 );
 
 // INVENTORY_LOGS TABLE
@@ -228,91 +228,9 @@ export const inventoryLogs = pgTable(
     notes: text('notes'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
   },
-  (table) => [
-    index('idx_inventory_logs_product_id').on(table.productId),
-    index('idx_inventory_logs_created_at').on(table.createdAt),
-    index('idx_inventory_logs_reason').on(table.reason),
-  ],
+  (table) => ({
+    productIdIdx: index('idx_inventory_logs_product_id').on(table.productId),
+    createdAtIdx: index('idx_inventory_logs_created_at').on(table.createdAt),
+    reasonIdx: index('idx_inventory_logs_reason').on(table.reason),
+  }),
 );
-
-// RELATIONS (for Drizzle Relational Queries)
-
-export const usersRelations = relations(users, ({ many }) => ({
-  orders: many(orders),
-  reviews: many(reviews),
-}));
-
-export const categoriesRelations = relations(categories, ({ one, many }) => ({
-  parent: one(categories, {
-    fields: [categories.parentId],
-    references: [categories.id],
-    relationName: 'CategoryHierarchy',
-  }),
-  children: many(categories, {
-    relationName: 'CategoryHierarchy',
-  }),
-  products: many(products),
-}));
-
-export const productsRelations = relations(products, ({ one, many }) => ({
-  category: one(categories, {
-    fields: [products.categoryId],
-    references: [categories.id],
-  }),
-  orderItems: many(orderItems),
-  reviews: many(reviews),
-  productTags: many(productTags),
-  inventoryLogs: many(inventoryLogs),
-}));
-
-export const tagsRelations = relations(tags, ({ many }) => ({
-  productTags: many(productTags),
-}));
-
-export const productTagsRelations = relations(productTags, ({ one }) => ({
-  product: one(products, {
-    fields: [productTags.productId],
-    references: [products.id],
-  }),
-  tag: one(tags, {
-    fields: [productTags.tagId],
-    references: [tags.id],
-  }),
-}));
-
-export const ordersRelations = relations(orders, ({ one, many }) => ({
-  user: one(users, {
-    fields: [orders.userId],
-    references: [users.id],
-  }),
-  orderItems: many(orderItems),
-}));
-
-export const orderItemsRelations = relations(orderItems, ({ one }) => ({
-  order: one(orders, {
-    fields: [orderItems.orderId],
-    references: [orders.id],
-  }),
-  product: one(products, {
-    fields: [orderItems.productId],
-    references: [products.id],
-  }),
-}));
-
-export const reviewsRelations = relations(reviews, ({ one }) => ({
-  product: one(products, {
-    fields: [reviews.productId],
-    references: [products.id],
-  }),
-  user: one(users, {
-    fields: [reviews.userId],
-    references: [users.id],
-  }),
-}));
-
-export const inventoryLogsRelations = relations(inventoryLogs, ({ one }) => ({
-  product: one(products, {
-    fields: [inventoryLogs.productId],
-    references: [products.id],
-  }),
-}));

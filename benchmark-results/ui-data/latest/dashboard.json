@@ -1,0 +1,31 @@
+{
+  "generated": "2025-12-11T14:20:20.736Z",
+  "summary": {
+    "totalRuns": 1,
+    "totalScenarios": 7,
+    "totalORMs": 2,
+    "lastRunDate": "2025-12-11T14:06:03.366Z"
+  },
+  "latestResults": {
+    "runId": "2025-12-11_19-36-03",
+    "timestamp": "2025-12-11T14:06:03.366Z",
+    "topPerformers": {
+      "latency": {
+        "ormId": "drizzle-v1.0.0-beta.2",
+        "ormName": "drizzle",
+        "value": 4.728438642858562
+      },
+      "throughput": {
+        "ormId": "drizzle-v1.0.0-beta.2",
+        "ormName": "drizzle",
+        "value": 530.7284398862997
+      }
+    },
+    "categoryWinners": {}
+  },
+  "trends": {
+    "period": "week",
+    "performanceChanges": []
+  },
+  "recentRegressions": []
+}

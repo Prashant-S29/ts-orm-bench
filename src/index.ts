@@ -1,7 +1,10 @@
 /**
- * Main Entry Point
- * Uses modular configuration-driven architecture
+ * Main Entry Point (Enhanced with New Storage System)
+ * Uses modular configuration-driven architecture with improved storage
  */
+
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 import {
   defaultConfig,
@@ -11,13 +14,13 @@ import {
 import { ORMFactory } from './factories/orm-factory';
 import { TestRunner } from './benchmark/test-runner';
 import { ScenarioRegistry } from './benchmark/scenario-registry';
-import { ResultsStorage } from './benchmark/results-storage';
+import { StorageManager } from './benchmark/storage-manager';
 import { logger } from './utils/logger';
 import type { TestConfig } from './config/test-config';
 
 async function main() {
   logger.info('='.repeat(60));
-  logger.info('TS-ORM-BENCH - Modular Benchmark System');
+  logger.info('TS-ORM-BENCH - Enhanced Benchmark System');
   logger.info('='.repeat(60));
   logger.info(`Node: ${process.version}`);
   logger.info(`Database: ${process.env.DB_NAME || 'benchmark'}`);
@@ -43,13 +46,13 @@ async function main() {
 
   logger.info('');
 
-  // Initialize storage
-  const storage = new ResultsStorage();
-  await storage.initialize();
-  logger.success('✓ Storage initialized');
+  // Initialize storage manager (new enhanced storage system)
+  const storageManager = new StorageManager();
+  await storageManager.initialize();
+  const storage = storageManager.getStorage();
 
   // Create ORM adapters
-  logger.info('\nInitializing ORM adapters...');
+  logger.info('Initializing ORM adapters...');
   const adapters = await ORMFactory.createAndInitializeMany(enabledORMs);
   logger.success(`✓ ${adapters.length} adapters initialized`);
 
@@ -78,19 +81,41 @@ async function main() {
 
   try {
     if (command === 'all' || !command) {
-      // Run all tests
+      // Run all tests with new storage system
       logger.info('\n' + '='.repeat(60));
       logger.info('Running all scenarios for all ORMs');
       logger.info('='.repeat(60) + '\n');
 
+      // Start a new run
+      const runId = await storage.startRun(
+        adapters.map((a) => a.id),
+        enabledScenarios.map((s) => s.id),
+        [...new Set(enabledScenarios.map((s) => s.category))],
+        {
+          warmupIterations: 500,
+          measurementIterations: 10000,
+          memoryMonitoringInterval: 100,
+          connectionPoolSize: 20,
+          database: {
+            host: process.env.DB_HOST || 'localhost',
+            port: parseInt(process.env.DB_PORT || '5432'),
+            database: process.env.DB_NAME || 'benchmark',
+          },
+        },
+        'manual',
+      );
+
+      logger.info(`Run ID: ${runId}\n`);
+
+      // Run all tests
       const allResults = await testRunner.runAll(
         enabledScenarios,
         adapters,
         scenarioExecuteFns,
       );
 
-      // Save all results
-      logger.info('\nSaving results...');
+      // Save all results using new storage system
+      logger.info('\n💾 Saving results...');
       for (const [ormId, results] of allResults) {
         for (const result of results) {
           await storage.saveResult(
@@ -101,22 +126,18 @@ async function main() {
             result.metrics,
             result.configuration,
             result.rawData,
+            { includeRawData: false }, // Don't save raw data to save space
           );
         }
+        logger.info(`  ✓ Saved ${results.length} results for ${ormId}`);
       }
 
-      // Generate aggregations
-      logger.info('\nGenerating aggregations...');
-      for (const adapter of adapters) {
-        await storage.aggregateByORM(adapter.id);
-      }
-      for (const scenario of enabledScenarios) {
-        await storage.aggregateByScenario(scenario.id);
-      }
+      // End the run
+      await storage.endRun('completed');
 
-      // Generate UI data
-      logger.info('\nGenerating UI-optimized data...');
-      await storage.generateUIData();
+      // Generate all aggregations
+      logger.info('\n📊 Generating aggregations...');
+      await storageManager.generateAllAggregations(runId);
 
       logger.success('\n✓ All tests completed successfully!');
     } else if (command === 'scenario') {
@@ -145,6 +166,28 @@ async function main() {
       logger.info(`Running scenario: ${scenarioConfig.name}`);
       logger.info('='.repeat(60) + '\n');
 
+      // Start a new run
+      const runId = await storage.startRun(
+        adapters.map((a) => a.id),
+        [scenarioId],
+        [scenarioConfig.category],
+        {
+          warmupIterations: scenarioConfig.warmupIterations,
+          measurementIterations: scenarioConfig.measurementIterations,
+          memoryMonitoringInterval: 100,
+          connectionPoolSize: 20,
+          database: {
+            host: process.env.DB_HOST || 'localhost',
+            port: parseInt(process.env.DB_PORT || '5432'),
+            database: process.env.DB_NAME || 'benchmark',
+          },
+        },
+        'manual',
+      );
+
+      logger.info(`Run ID: ${runId}\n`);
+
+      // Run the scenario
       for (const adapter of adapters) {
         const result = await testRunner.runScenario(
           scenarioConfig,
@@ -160,18 +203,18 @@ async function main() {
           result.metrics,
           result.configuration,
           result.rawData,
+          { includeRawData: false },
         );
 
         // Small delay between ORMs
         await new Promise((resolve) => setTimeout(resolve, 2000));
       }
 
+      // End the run
+      await storage.endRun('completed');
+
       // Generate aggregations for this scenario
-      await storage.aggregateByScenario(scenarioId);
-      for (const adapter of adapters) {
-        await storage.aggregateByORM(adapter.id);
-      }
-      await storage.generateUIData();
+      await storageManager.generateAllAggregations(runId);
 
       logger.success('\n✓ Scenario completed successfully!');
     } else if (command === 'orm') {
@@ -196,6 +239,28 @@ async function main() {
       );
       logger.info('='.repeat(60) + '\n');
 
+      // Start a new run
+      const runId = await storage.startRun(
+        [adapter.id],
+        enabledScenarios.map((s) => s.id),
+        [...new Set(enabledScenarios.map((s) => s.category))],
+        {
+          warmupIterations: 500,
+          measurementIterations: 10000,
+          memoryMonitoringInterval: 100,
+          connectionPoolSize: 20,
+          database: {
+            host: process.env.DB_HOST || 'localhost',
+            port: parseInt(process.env.DB_PORT || '5432'),
+            database: process.env.DB_NAME || 'benchmark',
+          },
+        },
+        'manual',
+      );
+
+      logger.info(`Run ID: ${runId}\n`);
+
+      // Run scenarios
       const results = await testRunner.runScenarios(
         enabledScenarios,
         adapter,
@@ -212,49 +277,77 @@ async function main() {
           result.metrics,
           result.configuration,
           result.rawData,
+          { includeRawData: false },
         );
       }
 
+      // End the run
+      await storage.endRun('completed');
+
       // Generate aggregations
-      await storage.aggregateByORM(adapter.id);
-      for (const scenario of enabledScenarios) {
-        await storage.aggregateByScenario(scenario.id);
-      }
-      await storage.generateUIData();
+      await storageManager.generateAllAggregations(runId);
 
       logger.success('\n✓ ORM tests completed successfully!');
     } else if (command === 'aggregate') {
       // Regenerate aggregations from existing results
-      logger.info('\nRegenerating aggregations...');
+      const runId = args[1];
 
-      for (const orm of enabledORMs) {
-        await storage.aggregateByORM(orm.id);
+      if (runId) {
+        logger.info(`\nRegenerating aggregations for run: ${runId}...`);
+        await storageManager.generateAllAggregations(runId);
+      } else {
+        logger.info('\nRegenerating aggregations for latest run...');
+        await storageManager.generateLatestAggregations();
       }
-      for (const scenario of enabledScenarios) {
-        await storage.aggregateByScenario(scenario.id);
-      }
-      await storage.generateUIData();
 
       logger.success('\n✓ Aggregations regenerated successfully!');
+    } else if (command === 'stats') {
+      // Show storage statistics
+      await storageManager.getStatistics();
+    } else if (command === 'summary') {
+      // Show run summary
+      const runId = args[1];
+      if (!runId) {
+        const latestRunId = await storage.getLatestRunId();
+        if (latestRunId) {
+          await storageManager.getRunSummary(latestRunId);
+        } else {
+          logger.error('No runs found');
+        }
+      } else {
+        await storageManager.getRunSummary(runId);
+      }
     } else {
       logger.error(`Unknown command: ${command}`);
       logger.info('\nUsage:');
-      logger.info('  pnpm test              - Run all tests');
-      logger.info('  pnpm test all          - Run all tests');
-      logger.info('  pnpm test scenario <id> - Run specific scenario');
+      logger.info('  pnpm test                    - Run all tests');
+      logger.info('  pnpm test all                - Run all tests');
+      logger.info('  pnpm test scenario <id>      - Run specific scenario');
       logger.info(
-        '  pnpm test orm <id>      - Run all scenarios for specific ORM',
+        '  pnpm test orm <id>           - Run all scenarios for specific ORM',
       );
-      logger.info(
-        '  pnpm test aggregate     - Regenerate aggregations',
-      );
+      logger.info('  pnpm test aggregate [runId]  - Regenerate aggregations');
+      logger.info('  pnpm test stats              - Show storage statistics');
+      logger.info('  pnpm test summary [runId]    - Show run summary');
       logger.info('\nExamples:');
       logger.info('  pnpm test scenario select_by_id');
       logger.info('  pnpm test orm drizzle-v1.0.0-beta.2');
+      logger.info('  pnpm test aggregate 2025-12-10_14-30-45');
+      logger.info('  pnpm test summary');
       process.exit(1);
     }
   } catch (error) {
     logger.error('\nBenchmark failed:', error);
+
+    // Try to end run with failed status
+    try {
+      if (storage.getCurrentRunId()) {
+        await storage.endRun('failed');
+      }
+    } catch (endError) {
+      logger.error('Failed to end run:', endError);
+    }
+
     process.exit(1);
   } finally {
     // Disconnect all adapters

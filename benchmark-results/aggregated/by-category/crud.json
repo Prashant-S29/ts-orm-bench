@@ -1,0 +1,14 @@
+{
+  "category": "crud",
+  "scenarios": [
+    "bulk_insert",
+    "delete_single",
+    "insert_single",
+    "select_by_email",
+    "select_by_id",
+    "select_pagination",
+    "update_single"
+  ],
+  "ormResults": {},
+  "lastUpdated": "2025-12-11T14:20:20.582Z"
+}
