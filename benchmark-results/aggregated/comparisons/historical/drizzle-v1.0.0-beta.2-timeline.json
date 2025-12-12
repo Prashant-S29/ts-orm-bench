@@ -2,8 +2,23 @@
   "ormId": "drizzle-v1.0.0-beta.2",
   "ormName": "drizzle",
   "ormVersion": "1.0.0-beta.2",
-  "generated": "2025-12-11T14:20:20.655Z",
+  "generated": "2025-12-11T17:16:25.015Z",
   "dataPoints": [
+    {
+      "runId": "2025-12-11_19-36-03",
+      "timestamp": "2025-12-11T14:20:20.462Z",
+      "scenarios": {},
+      "environment": {
+        "nodeVersion": "v22.16.0",
+        "platform": "linux",
+        "arch": "x64",
+        "cpuModel": "AMD Ryzen 5 5625U with Radeon Graphics",
+        "cpuCores": 12,
+        "totalMemoryMB": 15328,
+        "connectionPoolSize": 20,
+        "timestamp": "2025-12-11T14:20:20.464Z"
+      }
+    },
     {
       "runId": "2025-12-11_19-36-03",
       "timestamp": "2025-12-11T14:20:20.462Z",

@@ -109,5 +109,5 @@ Comparing crud operations between drizzle@1.0.0-beta.2 and prisma@7.1.0.
 
 ---
 
-**Generated**: 2025-12-11T14:24:05.851Z
+**Generated**: 2025-12-11T17:16:51.384Z
 **Run ID**: 2025-12-11_19-36-03
