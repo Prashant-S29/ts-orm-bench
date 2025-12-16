@@ -42,7 +42,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ComparisonData, BenchCategory } from '@/types/benchmark';
 import { formatLatency } from '@/lib/format-utils';
-import { ChevronDown, Eye, Construction } from 'lucide-react';
+import { ChevronDown, Construction } from 'lucide-react';
 
 interface SummaryChartProps {
   data: ComparisonData;
@@ -125,11 +125,10 @@ const metricOptions: MetricOption[] = [
 ];
 
 const ORM_COLORS: Record<string, string> = {
-  'drizzle-v1.0.0-beta.2': 'hsl(142, 76%, 36%)',
+  'drizzle-v1.0.0-beta.2': 'hsl(78, 91%, 64%)',
   'prisma-v7.1.0': 'hsl(210, 100%, 50%)',
-  'typeorm-v0.3.0': 'hsl(24, 100%, 50%)',
-  'mikro-v5.0.0': 'hsl(280, 100%, 50%)',
-  'sequelize-v6.0.0': 'hsl(200, 82%, 45%)',
+  'drizzle-v0.45.0': 'hsl(142, 76%, 36%)',
+  'prisma-v6.19.0': 'hsl(280, 100%, 50%)',
 };
 
 // Define bench categories mapping
@@ -147,8 +146,7 @@ export function SummaryChart({
   categories,
   onCategoryChange,
 }: SummaryChartProps) {
-  const [selectedMetric, setSelectedMetric] =
-    useState<string>('latency-median');
+  const [selectedMetric, setSelectedMetric] = useState<string>('throughput');
   const [visibleORMs, setVisibleORMs] = useState<Set<string>>(
     new Set(data.orms.map((orm) => orm.ormId)),
   );
@@ -383,6 +381,7 @@ export function SummaryChart({
                             checked={isChecked}
                             onCheckedChange={() => toggleORM(orm.ormId)}
                             disabled={isLastSelected}
+                            onSelect={(e) => e.preventDefault()}
                           >
                             <div className='flex items-center gap-2'>
                               <div
@@ -525,7 +524,7 @@ export function SummaryChart({
                         return (
                           <>
                             <div
-                              className='h-2.5 w-2.5 shrink-0 rounded-[2px]'
+                              className='h-2.5 w-2.5 shrink-0 rounded-xs'
                               style={{
                                 backgroundColor:
                                   ORM_COLORS[ormId] || 'hsl(0, 0%, 50%)',
