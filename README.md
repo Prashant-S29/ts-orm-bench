@@ -17,9 +17,9 @@ A comprehensive benchmark suite comparing TypeScript/JavaScript ORMs with real-w
 
 The benchmark uses **raw SQL for seeding** to ensure no ORM gets a "warm-up" advantage, and tests against a realistic e-commerce database schema with 100K+ users, 50K+ products, and 500K+ orders.
 
-## Benchmark Results
+## Benchmark Results [latest runs]
 
-- [**CRUD Operations**](./results/CRUD.md) - Basic Create, Read, Update, Delete operations
+- [**CRUD Operations**](./results/2025-12-14_01-26-54/CRUD.md) - Basic Create, Read, Update, Delete operations
 - **Complex Queries** (WIP) - Joins, aggregations, subqueries
 - **Transactions** (WIP) - Transaction performance and rollback scenarios
 - **Relations** (WIP) - Nested queries and eager loading

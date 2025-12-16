@@ -189,14 +189,24 @@ export class SystemChecker {
    */
   async checkDatabase(): Promise<{ connected: boolean; error?: string }> {
     try {
-      const host = process.env.DB_HOST || 'localhost';
-      const port = process.env.DB_PORT || '5432';
-      const user = process.env.DB_USER || 'benchmark';
-      const database = process.env.DB_NAME || 'benchmark';
+      // Import pg dynamically to avoid issues if not installed
+      const { Pool } = await import('pg');
 
-      const cmd = `psql -h ${host} -p ${port} -U ${user} -d ${database} -c "SELECT 1" -t`;
+      const pool = new Pool({
+        host: process.env.DB_HOST || 'localhost',
+        port: parseInt(process.env.DB_PORT || '5432'),
+        user: process.env.DB_USER || 'benchmark',
+        password: process.env.DB_PASSWORD || 'benchmark',
+        database: process.env.DB_NAME || 'benchmark',
+        connectionTimeoutMillis: 5000,
+      });
 
-      await execAsync(cmd);
+      // Test connection
+      const client = await pool.connect();
+      await client.query('SELECT 1');
+      client.release();
+      await pool.end();
+
       return { connected: true };
     } catch (error) {
       return {

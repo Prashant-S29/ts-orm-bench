@@ -5,9 +5,12 @@
 
 import { BaseORMAdapter } from './orm-adapter.interface';
 import type { ORMMetadata, ORMConfig } from '../config/test-config';
-import { PrismaClient } from '@prisma/client';
-import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
+import * as path from 'path';
+
+// Type definitions for both Prisma versions
+type PrismaClient = any;
+type PrismaPgAdapter = any;
 
 export class PrismaAdapter extends BaseORMAdapter {
   readonly id: string;
@@ -16,6 +19,7 @@ export class PrismaAdapter extends BaseORMAdapter {
 
   private config: ORMConfig;
   private pool?: Pool;
+  private v6Pool?: any; // Separate pool for v6 using its own pg version
   private prisma?: PrismaClient;
 
   constructor(config: ORMConfig) {
@@ -27,33 +31,41 @@ export class PrismaAdapter extends BaseORMAdapter {
 
   async initialize(): Promise<void> {
     try {
+      const isV6 = this.version.startsWith('6.');
+
       // Get database configuration from environment
+      const dbUser = process.env.DB_USER || 'benchmark';
+      const dbPassword = process.env.DB_PASSWORD || 'benchmark';
+      const dbHost = process.env.DB_HOST || 'localhost';
+      const dbPort = process.env.DB_PORT || '5432';
+      const dbName = process.env.DB_NAME || 'benchmark';
+
       const connectionString =
         process.env.DATABASE_URL ||
-        `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`;
+        `postgresql://${dbUser}:${dbPassword}@${dbHost}:${dbPort}/${dbName}`;
 
-      console.log(
-        '[DEBUG] Prisma connection string:',
-        connectionString.replace(/:[^:@]+@/, ':***@'),
+      console.log('[DEBUG] Prisma version:', this.version);
+
+      if (!isV6) {
+        // For v7, use root pool
+        this.pool = new Pool({
+          connectionString,
+          max: this.config.settings?.connectionPoolSize || 20,
+          idleTimeoutMillis: 30000,
+          connectionTimeoutMillis: 5000,
+        });
+
+        // Test the pool connection first
+        const testClient = await this.pool.connect();
+        testClient.release();
+      }
+
+      // Load the appropriate Prisma client based on version
+      const { PrismaClient, adapter } = await this.loadPrismaVersion(
+        connectionString,
       );
 
-      // Create connection pool with explicit configuration
-      this.pool = new Pool({
-        connectionString,
-        max: this.config.settings?.connectionPoolSize || 20,
-        idleTimeoutMillis: 30000,
-        connectionTimeoutMillis: 5000,
-      });
-
-      // Test the pool connection first
-      const testClient = await this.pool.connect();
-      testClient.release();
-
-      // Create Prisma adapter with pg pool
-      const adapter = new PrismaPg(this.pool);
-
-      // Initialize Prisma Client without datasource URL
-      // The adapter handles the connection
+      // Initialize Prisma Client with adapter
       this.prisma = new PrismaClient({
         adapter,
         log: this.config.settings?.logging
@@ -62,11 +74,63 @@ export class PrismaAdapter extends BaseORMAdapter {
       });
 
       this.client = this.prisma;
-      this.connected = false; // Not connected until connect() is called
+      this.connected = false;
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
       throw new Error(`Failed to initialize Prisma adapter: ${errorMessage}`);
+    }
+  }
+
+  private async loadPrismaVersion(connectionString: string): Promise<{
+    PrismaClient: any;
+    adapter: any;
+  }> {
+    const isV6 = this.version.startsWith('6.');
+
+    if (isV6) {
+      const v6Dir = path.resolve(process.cwd(), 'src/orms/prisma/v6.19.0');
+
+      const createRequire = await import('module').then((m) => m.createRequire);
+      const v6Require = createRequire(path.join(v6Dir, 'package.json'));
+
+      // Load ALL modules from v6's local node_modules
+      const prismaClientModule = v6Require('@prisma/client');
+      const prismaAdapterModule = v6Require('@prisma/adapter-pg');
+      const { Pool: V6Pool } = v6Require('pg');
+
+      const PrismaClient =
+        prismaClientModule.PrismaClient ||
+        prismaClientModule.default ||
+        prismaClientModule;
+
+      const PrismaPg =
+        prismaAdapterModule.PrismaPg ||
+        prismaAdapterModule.default ||
+        prismaAdapterModule;
+
+      // Create pool using v6's pg version - store it for later cleanup
+      this.v6Pool = new V6Pool({
+        connectionString,
+        max: this.config.settings?.connectionPoolSize || 20,
+        idleTimeoutMillis: 30000,
+        connectionTimeoutMillis: 5000,
+      });
+
+      // Test v6 pool
+      const testClient = await this.v6Pool.connect();
+      testClient.release();
+
+      const adapter = new PrismaPg(this.v6Pool);
+
+      return { PrismaClient, adapter };
+    } else {
+      // Load Prisma v7 from root (default)
+      const { PrismaClient } = await import('@prisma/client');
+      const { PrismaPg } = await import('@prisma/adapter-pg');
+      const adapter = new PrismaPg(this.pool!);
+
+      return { PrismaClient, adapter };
     }
   }
 
@@ -78,7 +142,6 @@ export class PrismaAdapter extends BaseORMAdapter {
       await this.prisma!.$connect();
 
       // Test connection with a simple query
-      // Use executeRaw instead of model query to avoid schema issues
       await this.prisma!.$queryRaw`SELECT 1 as test`;
 
       this.connected = true;
@@ -94,12 +157,18 @@ export class PrismaAdapter extends BaseORMAdapter {
     if (this.prisma) {
       await this.prisma.$disconnect();
     }
+    // Disconnect v6 pool if it exists
+    if (this.v6Pool) {
+      await this.v6Pool.end();
+    }
+    // Disconnect v7 pool if it exists
     if (this.pool) {
       await this.pool.end();
     }
     this.connected = false;
     this.prisma = undefined;
     this.pool = undefined;
+    this.v6Pool = undefined;
     this.client = undefined;
   }
 
@@ -134,7 +203,7 @@ export class PrismaAdapter extends BaseORMAdapter {
   }
 
   private ensureInitialized(): void {
-    if (!this.prisma || !this.pool) {
+    if (!this.prisma) {
       throw new Error(
         'Prisma adapter not initialized. Call initialize() first.',
       );

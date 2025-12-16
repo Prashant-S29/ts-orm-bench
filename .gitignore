@@ -2,3 +2,7 @@ node_modules/
 dist/
 .env
 *.log
+
+# Prisma generated clients
+src/orms/prisma/v6.19.0/node_modules/
+src/orms/prisma/*/generated/

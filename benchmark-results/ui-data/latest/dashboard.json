@@ -1,24 +1,24 @@
 {
-  "generated": "2025-12-11T17:16:25.084Z",
+  "generated": "2025-12-13T20:28:09.374Z",
   "summary": {
-    "totalRuns": 1,
+    "totalRuns": 5,
     "totalScenarios": 7,
-    "totalORMs": 2,
-    "lastRunDate": "2025-12-11T14:06:03.366Z"
+    "totalORMs": 4,
+    "lastRunDate": "2025-12-13T19:56:54.544Z"
   },
   "latestResults": {
-    "runId": "2025-12-11_19-36-03",
-    "timestamp": "2025-12-11T14:06:03.366Z",
+    "runId": "2025-12-14_01-26-54",
+    "timestamp": "2025-12-13T19:56:54.544Z",
     "topPerformers": {
       "latency": {
         "ormId": "drizzle-v1.0.0-beta.2",
         "ormName": "drizzle",
-        "value": 4.728438642858562
+        "value": 5.542248642854767
       },
       "throughput": {
         "ormId": "drizzle-v1.0.0-beta.2",
         "ormName": "drizzle",
-        "value": 530.7284398862997
+        "value": 538.8402560961316
       }
     },
     "categoryWinners": {}

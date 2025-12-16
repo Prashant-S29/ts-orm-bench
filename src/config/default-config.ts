@@ -1,6 +1,10 @@
 import type { TestConfig } from './test-config';
 import * as os from 'os';
 
+import { drizzleV1Config } from './orms/drizzle/v1.0.0-beta.2';
+import { drizzleV045Config } from './orms/drizzle/v0.45.0';
+import { prismaV7Config } from './orms/prisma/v7.1.0';
+import { prismaV6Config } from './orms/prisma/v6.19.0';
 /**
  * Default configuration for ts-orm-bench
  * This serves as the base configuration that can be overridden
@@ -17,39 +21,10 @@ export const defaultConfig: TestConfig = {
   },
 
   orms: [
-    {
-      id: 'drizzle-v1.0.0-beta.2',
-      name: 'drizzle',
-      version: '1.0.0-beta.2',
-      status: 'enabled',
-      schemaPath: 'src/orms/drizzle/v1.0.0-beta.2/schema.ts',
-      clientPath: 'src/orms/drizzle/v1.0.0-beta.2/client.ts',
-      dependencies: {
-        'drizzle-orm': '1.0.0-beta.2',
-        pg: '^8.11.3',
-      },
-      settings: {
-        connectionPoolSize: 20,
-        logging: false,
-      },
-    },
-    {
-      id: 'prisma-v7.1.0',
-      name: 'prisma',
-      version: '7.1.0',
-      status: 'enabled',
-      schemaPath: 'src/orms/prisma/v7.1.0/schema.prisma',
-      clientPath: 'src/orms/prisma/v7.1.0/client.ts',
-      dependencies: {
-        '@prisma/client': '7.1.0',
-        '@prisma/adapter-pg': '7.1.0',
-        pg: '^8.11.3',
-      },
-      settings: {
-        connectionPoolSize: 20,
-        logging: false,
-      },
-    },
+    drizzleV1Config,
+    prismaV7Config,
+    prismaV6Config,
+    drizzleV045Config,
   ],
 
   scenarios: [

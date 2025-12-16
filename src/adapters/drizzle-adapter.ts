@@ -37,17 +37,25 @@ export class DrizzleAdapter extends BaseORMAdapter {
   async initialize(): Promise<void> {
     try {
       // Dynamic import of schema based on version
-      const schemaModule = await import(`../../${this.config.schemaPath}`);
+      const schemaModule = await import(`../${this.config.schemaPath}`);
       this.schema = schemaModule;
 
-      // Dynamic import of relations based on version
-      // Relations file should be in the same directory as schema
-      const schemaDir = this.config.schemaPath.substring(
-        0,
-        this.config.schemaPath.lastIndexOf('/'),
-      );
-      const relationsModule = await import(`../../${schemaDir}/relations`);
-      this.relations = relationsModule.relations;
+      // Dynamic import of relations based on version (optional)
+      // Try to import relations, but don't fail if it doesn't exist
+      try {
+        const schemaDir = this.config.schemaPath.substring(
+          0,
+          this.config.schemaPath.lastIndexOf('/'),
+        );
+        const relationsModule = await import(`../${schemaDir}/relations`);
+        this.relations = relationsModule.relations;
+      } catch (error) {
+        // Relations not available for this version (e.g., Drizzle 0.45.0)
+        console.log(
+          `[INFO] Relations not available for ${this.id}, skipping...`,
+        );
+        this.relations = undefined;
+      }
 
       // Create connection pool
       this.pool = new Pool({
@@ -59,12 +67,21 @@ export class DrizzleAdapter extends BaseORMAdapter {
         max: this.config.settings?.connectionPoolSize || 20,
       });
 
-      // Initialize Drizzle with schema and relations for RQBv2
-      this.db = drizzle({
-        client: this.pool,
-        schema: this.schema,
-        relations: this.relations,
-      });
+      // Initialize Drizzle with schema (and relations if available)
+      if (this.relations) {
+        // RQBv2 with relations (Drizzle v1.0+)
+        this.db = drizzle({
+          client: this.pool,
+          schema: this.schema,
+          relations: this.relations,
+        });
+      } else {
+        // Without relations (Drizzle v0.45.0)
+        this.db = drizzle({
+          client: this.pool,
+          schema: this.schema,
+        });
+      }
 
       // Wrap client for compatibility with existing test scenarios
       this.client = {
@@ -74,7 +91,7 @@ export class DrizzleAdapter extends BaseORMAdapter {
         pool: this.pool,
       };
 
-      this.connected = false; // Not connected until connect() is called
+      this.connected = false;
     } catch (error) {
       throw new Error(
         `Failed to initialize Drizzle adapter: ${

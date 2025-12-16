@@ -1,0 +1,92 @@
+{
+  "runId": "2025-12-14_01-26-54",
+  "timestamp": "2025-12-13T19:56:54.544Z",
+  "startTime": "2025-12-13T19:56:54.544Z",
+  "endTime": "2025-12-13T20:28:08.655Z",
+  "duration": 1874111,
+  "status": "completed",
+  "triggeredBy": "manual",
+  "environment": {
+    "nodeVersion": "v22.21.1",
+    "platform": "linux",
+    "arch": "x64",
+    "cpuModel": "AMD Ryzen 5 5625U with Radeon Graphics",
+    "cpuCores": 12,
+    "totalMemoryMB": 15328,
+    "connectionPoolSize": 20,
+    "timestamp": "2025-12-13T19:56:54.547Z"
+  },
+  "configuration": {
+    "warmupIterations": 500,
+    "testIterations": 10000,
+    "memoryMonitoringInterval": 100,
+    "enabledCategories": [
+      "crud"
+    ],
+    "enabledScenarios": [
+      "select_by_id",
+      "select_by_email",
+      "select_pagination",
+      "insert_single",
+      "update_single",
+      "delete_single",
+      "bulk_insert"
+    ],
+    "databaseConfig": {
+      "host": "localhost",
+      "port": 5432,
+      "database": "benchmark",
+      "poolSize": 20
+    }
+  },
+  "testedORMs": [
+    {
+      "ormId": "drizzle-v1.0.0-beta.2",
+      "name": "drizzle",
+      "version": "1.0.0-beta.2",
+      "scenariosRun": 7,
+      "scenariosSucceeded": 7,
+      "scenariosFailed": 0,
+      "totalDuration": 0
+    },
+    {
+      "ormId": "prisma-v7.1.0",
+      "name": "prisma",
+      "version": "7.1.0",
+      "scenariosRun": 7,
+      "scenariosSucceeded": 7,
+      "scenariosFailed": 0,
+      "totalDuration": 0
+    },
+    {
+      "ormId": "prisma-v6.19.0",
+      "name": "prisma",
+      "version": "6.19.0",
+      "scenariosRun": 7,
+      "scenariosSucceeded": 7,
+      "scenariosFailed": 0,
+      "totalDuration": 0
+    },
+    {
+      "ormId": "drizzle-v0.45.0",
+      "name": "drizzle",
+      "version": "0.45.0",
+      "scenariosRun": 7,
+      "scenariosSucceeded": 7,
+      "scenariosFailed": 0,
+      "totalDuration": 0
+    }
+  ],
+  "summary": {
+    "totalScenarios": 28,
+    "totalMeasurements": 244000,
+    "successfulTests": 28,
+    "failedTests": 0,
+    "totalDuration": 0
+  },
+  "gitInfo": {
+    "branch": "main",
+    "commit": "8b104370dcc2697b24c0a6deb279cf82c50441ea",
+    "isDirty": true
+  }
+}

@@ -1,15 +1,68 @@
 {
   "version": "1.0.0",
-  "generated": "2025-12-11T17:16:25.052Z",
+  "generated": "2025-12-13T20:28:09.220Z",
   "latestRun": {
-    "runId": "2025-12-11_19-36-03",
-    "timestamp": "2025-12-11T14:06:03.366Z"
+    "runId": "2025-12-14_01-26-54",
+    "timestamp": "2025-12-13T19:56:54.544Z"
   },
   "availableRuns": [
     {
+      "runId": "2025-12-14_01-26-54",
+      "timestamp": "2025-12-13T19:56:54.544Z",
+      "label": "Just now",
+      "orms": [
+        "drizzle-v1.0.0-beta.2",
+        "prisma-v7.1.0",
+        "prisma-v6.19.0",
+        "drizzle-v0.45.0"
+      ],
+      "categories": [
+        "crud"
+      ],
+      "scenarioCount": 28,
+      "status": "completed"
+    },
+    {
+      "runId": "2025-12-14_01-26-40",
+      "timestamp": "2025-12-13T19:56:40.472Z",
+      "label": "Just now",
+      "orms": [],
+      "categories": [
+        "crud"
+      ],
+      "scenarioCount": 0,
+      "status": "running"
+    },
+    {
+      "runId": "2025-12-14_01-21-23",
+      "timestamp": "2025-12-13T19:51:23.696Z",
+      "label": "Just now",
+      "orms": [],
+      "categories": [
+        "crud"
+      ],
+      "scenarioCount": 0,
+      "status": "running"
+    },
+    {
+      "runId": "2025-12-13_18-37-18",
+      "timestamp": "2025-12-13T13:07:18.143Z",
+      "label": "7 hours ago",
+      "orms": [
+        "drizzle-v1.0.0-beta.2",
+        "prisma-v7.1.0",
+        "drizzle-v0.45.0"
+      ],
+      "categories": [
+        "crud"
+      ],
+      "scenarioCount": 21,
+      "status": "completed"
+    },
+    {
       "runId": "2025-12-11_19-36-03",
       "timestamp": "2025-12-11T14:06:03.366Z",
-      "label": "3 hours ago",
+      "label": "2 days ago",
       "orms": [
         "drizzle-v1.0.0-beta.2",
         "prisma-v7.1.0"
@@ -23,19 +76,35 @@
   ],
   "orms": [
     {
+      "id": "drizzle-v0.45.0",
+      "name": "drizzle",
+      "version": "0.45.0",
+      "firstSeen": "2025-12-13T20:28:08.647Z",
+      "lastTested": "2025-12-13T20:28:08.647Z",
+      "totalRuns": 1
+    },
+    {
       "id": "drizzle-v1.0.0-beta.2",
       "name": "drizzle",
       "version": "1.0.0-beta.2",
-      "firstSeen": "2025-12-11T14:20:20.462Z",
-      "lastTested": "2025-12-11T14:20:20.462Z",
+      "firstSeen": "2025-12-13T20:28:08.499Z",
+      "lastTested": "2025-12-13T20:28:08.499Z",
+      "totalRuns": 1
+    },
+    {
+      "id": "prisma-v6.19.0",
+      "name": "prisma",
+      "version": "6.19.0",
+      "firstSeen": "2025-12-13T20:28:08.597Z",
+      "lastTested": "2025-12-13T20:28:08.597Z",
       "totalRuns": 1
     },
     {
       "id": "prisma-v7.1.0",
       "name": "prisma",
       "version": "7.1.0",
-      "firstSeen": "2025-12-11T14:20:20.496Z",
-      "lastTested": "2025-12-11T14:20:20.496Z",
+      "firstSeen": "2025-12-13T20:28:08.553Z",
+      "lastTested": "2025-12-13T20:28:08.553Z",
       "totalRuns": 1
     }
   ],

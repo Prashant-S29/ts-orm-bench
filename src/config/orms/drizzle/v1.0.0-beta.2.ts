@@ -9,8 +9,8 @@ export const drizzleV1Config: ORMConfig = {
   name: 'drizzle',
   version: '1.0.0-beta.2',
   status: 'enabled',
-  schemaPath: 'orms/drizzle/v1.0.0-beta.2/schema',
-  clientPath: 'orms/drizzle/v1.0.0-beta.2/client',
+  schemaPath: 'orms/drizzle/v1.0.0-beta.2/schema.ts',
+  clientPath: 'orms/drizzle/v1.0.0-beta.2/client.ts',
   dependencies: {
     'drizzle-orm': '1.0.0-beta.2',
     pg: '^8.11.3',

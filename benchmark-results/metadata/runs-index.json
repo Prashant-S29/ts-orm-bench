@@ -1,6 +1,47 @@
 {
   "runs": [
     {
+      "runId": "2025-12-14_01-26-54",
+      "timestamp": "2025-12-13T19:56:54.544Z",
+      "status": "completed",
+      "orms": [
+        "drizzle-v1.0.0-beta.2",
+        "prisma-v7.1.0",
+        "prisma-v6.19.0",
+        "drizzle-v0.45.0"
+      ],
+      "scenarios": 28,
+      "duration": 1874111
+    },
+    {
+      "runId": "2025-12-14_01-26-40",
+      "timestamp": "2025-12-13T19:56:40.472Z",
+      "status": "running",
+      "orms": [],
+      "scenarios": 0,
+      "duration": 0
+    },
+    {
+      "runId": "2025-12-14_01-21-23",
+      "timestamp": "2025-12-13T19:51:23.696Z",
+      "status": "running",
+      "orms": [],
+      "scenarios": 0,
+      "duration": 0
+    },
+    {
+      "runId": "2025-12-13_18-37-18",
+      "timestamp": "2025-12-13T13:07:18.143Z",
+      "status": "completed",
+      "orms": [
+        "drizzle-v1.0.0-beta.2",
+        "prisma-v7.1.0",
+        "drizzle-v0.45.0"
+      ],
+      "scenarios": 21,
+      "duration": 814172
+    },
+    {
       "runId": "2025-12-11_19-36-03",
       "timestamp": "2025-12-11T14:06:03.366Z",
       "status": "completed",
@@ -12,8 +53,8 @@
       "duration": 857133
     }
   ],
-  "totalRuns": 1,
+  "totalRuns": 5,
   "oldestRun": "2025-12-11_19-36-03",
-  "newestRun": "2025-12-11_19-36-03",
-  "lastUpdated": "2025-12-11T14:20:20.501Z"
+  "newestRun": "2025-12-14_01-26-54",
+  "lastUpdated": "2025-12-13T20:28:08.665Z"
 }
